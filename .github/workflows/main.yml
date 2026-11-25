@@ -32,8 +32,8 @@ jobs:
 
           cd "$PROJECT_DIR"
 
-          if [ ! -f "settings.gradle.kts" ] && [ ! -f "settings.gradle" ]; then
-            cat << 'EOF' > settings.gradle.kts
+          # রুট settings.gradle.kts সঠিকভাবে সেট করা
+          cat << 'EOF' > settings.gradle.kts
           pluginManagement {
               repositories {
                   google()
@@ -51,14 +51,23 @@ jobs:
           rootProject.name = "BSP-SMS-Android"
           include(":app")
           EOF
-          fi
 
-          if [ ! -f "build.gradle.kts" ] && [ ! -f "build.gradle" ]; then
-            cat << 'EOF' > build.gradle.kts
+          # রুট build.gradle.kts-এ AGP এবং Kotlin 2.0+ Compose প্লাগিন যুক্ত করা
+          cat << 'EOF' > build.gradle.kts
           plugins {
               id("com.android.application") version "8.7.3" apply false
-              id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+              id("org.jetbrains.kotlin.android") version "2.0.21" apply false
+              id("org.jetbrains.kotlin.plugin.compose") version "2.0.21" apply false
           }
+          EOF
+
+          # gradle.properties না থাকলে তৈরি করা
+          if [ ! -f "gradle.properties" ]; then
+            cat << 'EOF' > gradle.properties
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          kotlin.code.style=official
+          android.nonTransitiveRClass=true
           EOF
           fi
 
