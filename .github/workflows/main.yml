@@ -19,13 +19,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android SDK Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Locate Project & Auto-Fix Gradle Config
         id: locate
         run: |
-          # app/build.gradle.kts বা app/build.gradle কোথায় আছে তা স্বয়ংক্রিয়ভাবে খুঁজে বের করা
           APP_GRADLE=$(find . -maxdepth 4 -path "*/app/build.gradle*" | head -n 1)
           PROJECT_DIR=$(dirname $(dirname "$APP_GRADLE"))
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
@@ -33,7 +32,6 @@ jobs:
 
           cd "$PROJECT_DIR"
 
-          # যদি settings.gradle.kts না থাকে বা pluginManagement মিসিং থাকে, তবে ঠিক করে দেওয়া
           if [ ! -f "settings.gradle.kts" ] && [ ! -f "settings.gradle" ]; then
             cat << 'EOF' > settings.gradle.kts
           pluginManagement {
@@ -55,7 +53,6 @@ jobs:
           EOF
           fi
 
-          # রুট build.gradle.kts না থাকলে তৈরি করে AGP ও Kotlin ভার্সন সেট করা
           if [ ! -f "build.gradle.kts" ] && [ ! -f "build.gradle" ]; then
             cat << 'EOF' > build.gradle.kts
           plugins {
